@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIC TAC TOE - By Rithik</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShgqa8-7A6jOhCw0w2L2-0kQduLhBXsR94yg&s");
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+        }
+
+        .header {
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShgqa8-7A6jOhCw0w2L2-0kQduLhBXsR94yg&s");
+            background-size: cover;
+        }
+
+        .container {
+            display: flex;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        .rules {
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            margin-right: 20px;
+        }
+
+        .game {
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 0;
+            margin-top: 20px;
+        }
+
+            .grid button {
+                width: 100px;
+                height: 100px;
+                border: 2px solid red;
+                background-color: white;
+                font-size: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+        .play-again-btn, .start-btn {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #result {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        #resultText {
+            color: orangered;
+            animation: blink 1s step-start infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .rules {
+            text-align: left;
+            font-size: 16px;
+        }
+
+        #timer {
+            font-size: 24px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TIC TAC TOE - By Rithik</h1>
+    </div>
+    <div class="container">
+        <div class="rules">
+            <p>1. "X" plays first</p>
+            <p>2. Player should make the move within 20 seconds else the game stops</p>
+            <p>3. The first player to get 3 marks in a row (up, down, across, or diagonally) is the winner.</p>
+        </div>
+        <div class="game">
+            <button onclick="startGame()" class="start-btn"><b>Start Game</b></button>
+            <div id="timer">20</div>
+            <div class="grid">
+                <button onclick="makeMove(this)" id="b1"></button>
+                <button onclick="makeMove(this)" id="b2"></button>
+                <button onclick="makeMove(this)" id="b3"></button>
+                <button onclick="makeMove(this)" id="b4"></button>
+                <button onclick="makeMove(this)" id="b5"></button>
+                <button onclick="makeMove(this)" id="b6"></button>
+                <button onclick="makeMove(this)" id="b7"></button>
+                <button onclick="makeMove(this)" id="b8"></button>
+                <button onclick="makeMove(this)" id="b9"></button>
+            </div>
+        </div>
+    </div>
+    <div id="result">
+        <h1 id="resultText"></h1>
+        <button onclick="playAgain()" class="play-again-btn"><b>Play Again</b></button>
+    </div>
+
+    <script>
+        let turn = 1;
+        let gameEnded = false;
+        let gameStarted = false;
+        let currentTimeout;
+        let countdownInterval;
+        const timerElement = document.getElementById('timer');
+
+        function startGame() {
+            gameStarted = true;
+            document.querySelector('.start-btn').style.display = 'none';
+            timerElement.style.display = 'block';
+            startTimer();
+        }
+
+        function startTimer() {
+            let timeLeft = 20;
+            timerElement.innerHTML = timeLeft;
+
+            countdownInterval = setInterval(() => {
+                if (!gameEnded) {
+                    timeLeft--;
+                    timerElement.innerHTML = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        alert('Time is up! You took too long to make a move.');
+                        document.getElementById('resultText').innerText = "Time's up! Game Over.";
+                        document.getElementById('result').style.display = 'block';
+                        gameEnded = true;
+                    }
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(countdownInterval);
+            startTimer();
+        }
+
+        function makeMove(button) {
+            if (!gameStarted || gameEnded) return;
+
+            if (button.innerHTML !== 'X' && button.innerHTML !== 'O') {
+                button.innerHTML = turn % 2 !== 0 ? 'X' : 'O';
+                turn++;
+
+                if (checkWinner()) {
+                    gameEnded = true;
+                    document.getElementById('resultText').innerText = button.innerHTML + ' wins!';
+                    document.getElementById('result').style.display = 'block';
+                } else if (turn > 9) {
+                    gameEnded = true;
+                    document.getElementById('resultText').innerText = "Draw!";
+                    document.getElementById('result').style.display = 'block';
+                }
+                clearTimeout(currentTimeout);
+                resetTimer();
+            }
+        }
+
+        function checkWinner() {
+            const buttons =[
+                [document.getElementById('b1').innerHTML, document.getElementById('b2').innerHTML, document.getElementById('b3').innerHTML],
+                [document.getElementById('b4').innerHTML, document.getElementById('b5').innerHTML, document.getElementById('b6').innerHTML],
+                [document.getElementById('b7').innerHTML, document.getElementById('b8').innerHTML, document.getElementById('b9').innerHTML]
+            ];
+
+            for (let i = 0; i < 3; i++) {
+                if (buttons[i][0] === buttons[i][1] && buttons[i][1] === buttons[i][2] && buttons[i][0] !== '') {
+                    return true;
+                }
+                if (buttons[0][i] === buttons[1][i] && buttons[1][i] === buttons[2][i] && buttons[0][i] !== '') {
+                    return true;
+                }
+            }
+            if (buttons[0][0] === buttons[1][1] && buttons[1][1] === buttons[2][2] && buttons[0][0] !== '') {
+                return true;
+            }
+            if (buttons[0][2] === buttons[1][1] && buttons[1][1] === buttons[2][0] && buttons[2][0] !== '') {
+                return true;
+            }
+            return false;
+        }
+
+        function playAgain() {
+            for (let i = 1; i <= 9; i++) {
+                document.getElementById('b' + i).innerHTML = "";
+            }
+            turn = 1;
+            gameEnded = false;
+            gameStarted = false;
+            document.getElementById('result').style.display = 'none';
+            document.querySelector('.start-btn').style.display = 'block';
+            timerElement.style.display = 'none';
+            clearTimeout(currentTimeout);
+            clearInterval(countdownInterval);
+        }
+    </script>
+</body>
+</html>
